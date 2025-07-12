@@ -1,26 +1,27 @@
-import supabase, {supabaseUrl} from "./supabase";
+import supabase, { supabaseUrl } from "./supabase";
 
-export async function login({email, password}) {
-  const {data, error} = await supabase.auth.signInWithPassword({
+//  Login function
+export async function login({ email, password }) {
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) throw new Error(error.message);
-
   return data;
 }
 
-export async function signup({name, email, password, profilepic}) {
+// Signup function with profile pic upload
+export async function signup({ name, email, password, profilepic }) {
   const fileName = `dp-${name.split(" ").join("-")}-${Math.random()}`;
 
-  const {error: storageError} = await supabase.storage
+  const { error: storageError } = await supabase.storage
     .from("profilepic")
     .upload(fileName, profilepic);
 
   if (storageError) throw new Error(storageError.message);
 
-  const {data, error} = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -32,21 +33,30 @@ export async function signup({name, email, password, profilepic}) {
   });
 
   if (error) throw new Error(error.message);
-
   return data;
 }
 
+//  Get the currently logged-in user
 export async function getCurrentUser() {
-  const {data: session, error} = await supabase.auth.getSession();
-  if (!session.session) return null;
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-  // const {data, error} = await supabase.auth.getUser();
+  if (sessionError) throw new Error(sessionError.message);
+  if (!session) return null;
 
-  if (error) throw new Error(error.message);
-  return session.session?.user;
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) throw new Error(userError.message);
+  return user;
 }
 
+
 export async function logout() {
-  const {error} = await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
   if (error) throw new Error(error.message);
 }

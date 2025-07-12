@@ -1,6 +1,6 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Error from "./error";
-import {Input} from "./ui/input";
+import { Input } from "./ui/input";
 import * as Yup from "yup";
 import {
   Card,
@@ -10,10 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import {Button} from "./ui/button";
-import {useNavigate, useSearchParams} from "react-router-dom";
-import {signup} from "@/db/apiAuth";
-import {BeatLoader} from "react-spinners";
+import { Button } from "./ui/button";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { signup } from "@/db/apiAuth";
+import { BeatLoader } from "react-spinners";
 import useFetch from "@/hooks/use-fetch";
 
 const Signup = () => {
@@ -31,24 +31,24 @@ const Signup = () => {
   });
 
   const handleInputChange = (e) => {
-    const {name, value, files} = e.target;
+    const { name, value, files } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: files ? files[0] : value,
     }));
   };
 
-  const {loading, error, fn: fnSignup, data} = useFetch(signup, formData);
+  const { loading, error, fn: fnSignup, data } = useFetch(signup);
 
   useEffect(() => {
     if (error === null && data) {
       navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [error, loading]);
+  }, [error, data]);
 
   const handleSignup = async () => {
-    setErrors([]);
+    setErrors({});
     try {
       const schema = Yup.object().shape({
         name: Yup.string().required("Name is required"),
@@ -61,18 +61,17 @@ const Signup = () => {
         profilepic: Yup.mixed().required("Profile picture is required"),
       });
 
-      await schema.validate(formData, {abortEarly: false});
-      await fnSignup();
+      await schema.validate(formData, { abortEarly: false });
+      await fnSignup(formData);
     } catch (error) {
       const newErrors = {};
       if (error?.inner) {
         error.inner.forEach((err) => {
           newErrors[err.path] = err.message;
         });
-
         setErrors(newErrors);
       } else {
-        setErrors({api: error.message});
+        setErrors({ api: error.message });
       }
     }
   };
@@ -126,11 +125,7 @@ const Signup = () => {
       </CardContent>
       <CardFooter>
         <Button onClick={handleSignup}>
-          {loading ? (
-            <BeatLoader size={10} color="#36d7b7" />
-          ) : (
-            "Create Account"
-          )}
+          {loading ? <BeatLoader size={10} color="#36d7b7" /> : "Create Account"}
         </Button>
       </CardFooter>
     </Card>

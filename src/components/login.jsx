@@ -1,3 +1,8 @@
+import {useEffect, useState} from "react";
+import {useNavigate, useSearchParams} from "react-router-dom";
+import * as Yup from "yup";
+import {BeatLoader} from "react-spinners";
+
 import {Input} from "./ui/input";
 import {
   Card,
@@ -8,19 +13,15 @@ import {
   CardTitle,
 } from "./ui/card";
 import {Button} from "./ui/button";
-import {useNavigate, useSearchParams} from "react-router-dom";
-import {useEffect, useState} from "react";
-import * as Yup from "yup";
 import Error from "./error";
+
 import {login} from "@/db/apiAuth";
-import {BeatLoader} from "react-spinners";
 import useFetch from "@/hooks/use-fetch";
 import {UrlState} from "@/context";
 
 const Login = () => {
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const longLink = searchParams.get("createNew");
-
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
@@ -29,6 +30,9 @@ const Login = () => {
     password: "",
   });
 
+  const {loading, error, fn: fnLogin, data} = useFetch(login);
+  const {fetchUser} = UrlState();
+
   const handleInputChange = (e) => {
     const {name, value} = e.target;
     setFormData((prevState) => ({
@@ -36,9 +40,6 @@ const Login = () => {
       [name]: value,
     }));
   };
-
-  const {loading, error, fn: fnLogin, data} = useFetch(login, formData);
-  const {fetchUser} = UrlState();
 
   useEffect(() => {
     if (error === null && data) {
@@ -49,7 +50,7 @@ const Login = () => {
   }, [error, data]);
 
   const handleLogin = async () => {
-    setErrors([]);
+    setErrors({});
     try {
       const schema = Yup.object().shape({
         email: Yup.string()
@@ -61,14 +62,12 @@ const Login = () => {
       });
 
       await schema.validate(formData, {abortEarly: false});
-      await fnLogin();
+      await fnLogin(formData); // ✅ Now we pass the data explicitly
     } catch (e) {
       const newErrors = {};
-
       e?.inner?.forEach((err) => {
         newErrors[err.path] = err.message;
       });
-
       setErrors(newErrors);
     }
   };
