@@ -1,7 +1,13 @@
 import supabase, { supabaseUrl } from "./supabase";
 
-//  Login function
-export async function login({ email, password }) {
+// Login function
+export async function login(credentials) {
+  if (!credentials || !credentials.email || !credentials.password) {
+    throw new Error("Email and password are required");
+  }
+
+  const { email, password } = credentials;
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -36,7 +42,7 @@ export async function signup({ name, email, password, profilepic }) {
   return data;
 }
 
-//  Get the currently logged-in user
+// Get the currently logged-in user
 export async function getCurrentUser() {
   const {
     data: { session },
@@ -55,7 +61,7 @@ export async function getCurrentUser() {
   return user;
 }
 
-
+// Logout function
 export async function logout() {
   const { error } = await supabase.auth.signOut();
   if (error) throw new Error(error.message);

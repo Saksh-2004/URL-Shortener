@@ -1,9 +1,9 @@
-import {useEffect, useState} from "react";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
-import {BeatLoader} from "react-spinners";
+import { BeatLoader } from "react-spinners";
 
-import {Input} from "./ui/input";
+import { Input } from "./ui/input";
 import {
   Card,
   CardContent,
@@ -12,12 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import {Button} from "./ui/button";
+import { Button } from "./ui/button";
 import Error from "./error";
 
-import {login} from "@/db/apiAuth";
+import { login } from "@/db/apiAuth";
 import useFetch from "@/hooks/use-fetch";
-import {UrlState} from "@/context";
+import { UrlState } from "@/context";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
@@ -30,11 +30,11 @@ const Login = () => {
     password: "",
   });
 
-  const {loading, error, fn: fnLogin, data} = useFetch(login);
-  const {fetchUser} = UrlState();
+  const { loading, error, fn: fnLogin, data } = useFetch(login);
+  const { fetchUser } = UrlState();
 
   const handleInputChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -61,13 +61,15 @@ const Login = () => {
           .required("Password is required"),
       });
 
-      await schema.validate(formData, {abortEarly: false});
-      await fnLogin(formData); // ✅ Now we pass the data explicitly
+      await schema.validate(formData, { abortEarly: false });
+      await fnLogin(formData); // ✅ Pass correct login credentials
     } catch (e) {
       const newErrors = {};
-      e?.inner?.forEach((err) => {
-        newErrors[err.path] = err.message;
-      });
+      if (e?.inner) {
+        e.inner.forEach((err) => {
+          newErrors[err.path] = err.message;
+        });
+      }
       setErrors(newErrors);
     }
   };
