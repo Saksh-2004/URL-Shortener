@@ -30,8 +30,8 @@ export async function getUrl({id, user_id}) {
   return data;
 }
 
-export async function getLongUrl(_options, id) {
-  let {data: shortLinkData, error: shortLinkError} = await supabase
+export async function getLongUrl(id) {
+  let { data: shortLinkData, error: shortLinkError } = await supabase
     .from("urls")
     .select("id, original_url")
     .or(`short_url.eq.${id},custom_url.eq.${id}`)
@@ -44,6 +44,7 @@ export async function getLongUrl(_options, id) {
 
   return shortLinkData;
 }
+
 
 export async function createUrl({title, longUrl, customUrl, user_id}, qrcode) {
   const short_url = Math.random().toString(36).substr(2, 6);

@@ -7,10 +7,10 @@ import { BarLoader } from "react-spinners";
 
 const RedirectLink = () => {
   const { id } = useParams();
-  const { loading, data, fn } = useFetch(getLongUrl, id);
+  const { loading, data, fn } = useFetch(getLongUrl);
 
   useEffect(() => {
-    fn(); // fetch the long URL based on short/custom URL
+    fn(id); // fetch the long URL based on short/custom URL
   }, []);
 
   useEffect(() => {

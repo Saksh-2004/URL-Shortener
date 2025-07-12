@@ -38,23 +38,28 @@ const LinkPage = () => {
     data: url,
     fn,
     error,
-  } = useFetch(getUrl, {id, user_id: user?.id});
+  } = useFetch(getUrl);
 
   const {
     loading: loadingStats,
     data: stats,
     fn: fnStats,
-  } = useFetch(getClicksForUrl, id);
+  } = useFetch(getClicksForUrl);
 
-  const {loading: loadingDelete, fn: fnDelete} = useFetch(deleteUrl, id);
-
-  useEffect(() => {
-    fn();
-  }, []);
+  const {loading: loadingDelete, fn: fnDelete} = useFetch(deleteUrl);
 
   useEffect(() => {
-    if (!error && loading === false) fnStats();
-  }, [loading, error]);
+  if (id && user?.id) {
+    fn({ id, user_id: user.id });  //  getUrl({ id, user_id })
+  }
+}, [id, user?.id]);
+
+useEffect(() => {
+  if (!error && loading === false && id) {
+    fnStats(id);  //  getClicksForUrl(id)
+  }
+}, [loading, error, id]);
+
 
   if (error) {
     navigate("/dashboard");
@@ -108,11 +113,11 @@ const LinkPage = () => {
             <Button
               variant="ghost"
               onClick={() =>
-                fnDelete().then(() => {
+                fnDelete(id).then(() => {
                   navigate("/dashboard");
                 })
               }
-              disable={loadingDelete}
+              disabled={loadingDelete}
             >
               {loadingDelete ? (
                 <BeatLoader size={5} color="white" />

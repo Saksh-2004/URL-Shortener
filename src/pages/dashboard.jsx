@@ -19,27 +19,28 @@ import {UrlState} from "@/context";
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const {user} = UrlState();
-  const {loading, error, data: urls, fn: fnUrls} = useFetch(getUrls, user.id);
+  const {loading, error, data: urls, fn: fnUrls} = useFetch(getUrls);
   const {
     loading: loadingClicks,
     data: clicks,
     fn: fnClicks,
-  } = useFetch(
-    getClicksForUrls,
-    urls?.map((url) => url.id)
-  );
+  } = useFetch(getClicksForUrls);
 
   useEffect(() => {
-    fnUrls();
-  }, []);
+    fnUrls(user.id);
+  }, [user?.id]);
 
   const filteredUrls = urls?.filter((url) =>
     url.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   useEffect(() => {
-    if (urls?.length) fnClicks();
-  }, [urls?.length]);
+  if (urls?.length) {
+    const ids = urls.map((url) => url.id);
+    fnClicks(ids);
+  }
+}, [urls]);
+
 
   return (
     <div className="flex flex-col gap-8">
