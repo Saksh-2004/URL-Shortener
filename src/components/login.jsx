@@ -62,7 +62,7 @@ const Login = () => {
       });
 
       await schema.validate(formData, { abortEarly: false });
-      await fnLogin(formData); // ✅ Pass validated credentials
+      await fnLogin(formData); 
     } catch (e) {
       const newErrors = {};
       if (e?.inner) {
