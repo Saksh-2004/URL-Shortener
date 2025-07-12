@@ -30,7 +30,7 @@ export async function getUrl({id, user_id}) {
   return data;
 }
 
-export async function getLongUrl(id) {
+export async function getLongUrl(_options, id) {
   let {data: shortLinkData, error: shortLinkError} = await supabase
     .from("urls")
     .select("id, original_url")
