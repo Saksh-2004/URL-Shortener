@@ -1,8 +1,27 @@
-# React + Vite
+# Trimrr – URL Shortener with Analytics
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live:** [https://url-shortener-trimrr.vercel.app](https://url-shortener-trimrr.vercel.app)
 
-Currently, two official plugins are available:
+Trimrr is a full-stack web application that allows users to shorten long URLs, generate QR codes, and view click analytics (location and device info). Users can log in, manage links, and monitor performance through a clean dashboard.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+
+- **Frontend:** React, Tailwind CSS, ShadCN UI, React Router
+- **Backend:** Supabase (PostgreSQL, Auth, Storage, Row-Level Security)
+- **Others:** QR Code generation (`react-qrcode-logo`), Lucide Icons, Vercel (deployment)
+
+## Key Features
+
+- User authentication and protected routes
+- Custom and auto-generated short URLs
+- QR code generation stored on Supabase
+- Link-level analytics: click count, location, device
+- Secure redirect handling
+
+## Deployment
+
+Hosted on **Vercel**  
+Supabase used for Auth, DB, Storage, and RLS policies
+
+---
+
