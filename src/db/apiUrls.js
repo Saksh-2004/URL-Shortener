@@ -1,7 +1,8 @@
-import supabase, {supabaseUrl} from "./supabase";
+import supabase, { supabaseUrl } from "./supabase";
 
+// Fetch all URLs for a given user
 export async function getUrls(user_id) {
-  let {data, error} = await supabase
+  let { data, error } = await supabase
     .from("urls")
     .select("*")
     .eq("user_id", user_id);
@@ -14,8 +15,9 @@ export async function getUrls(user_id) {
   return data;
 }
 
-export async function getUrl({id, user_id}) {
-  const {data, error} = await supabase
+// Fetch a specific URL belonging to a user
+export async function getUrl({ id, user_id }) {
+  const { data, error } = await supabase
     .from("urls")
     .select("*")
     .eq("id", id)
@@ -30,6 +32,7 @@ export async function getUrl({id, user_id}) {
   return data;
 }
 
+// Fetch long/original URL using either short_url or custom_url
 export async function getLongUrl(id) {
   let { data: shortLinkData, error: shortLinkError } = await supabase
     .from("urls")
@@ -45,20 +48,22 @@ export async function getLongUrl(id) {
   return shortLinkData;
 }
 
-
-export async function createUrl({title, longUrl, customUrl, user_id}, qrcode) {
+// Create a new short URL with QR code
+export async function createUrl({ title, longUrl, customUrl, user_id, qrBlob }) {
   const short_url = Math.random().toString(36).substr(2, 6);
   const fileName = `qr-${short_url}`;
 
-  const {error: storageError} = await supabase.storage
+  if (!qrBlob) throw new Error("QR code Blob is required");
+
+  const { error: storageError } = await supabase.storage
     .from("qrs")
-    .upload(fileName, qrcode);
+    .upload(fileName, qrBlob);
 
   if (storageError) throw new Error(storageError.message);
 
   const qr = `${supabaseUrl}/storage/v1/object/public/qrs/${fileName}`;
 
-  const {data, error} = await supabase
+  const { data, error } = await supabase
     .from("urls")
     .insert([
       {
@@ -80,8 +85,13 @@ export async function createUrl({title, longUrl, customUrl, user_id}, qrcode) {
   return data;
 }
 
+
+// Delete a URL by ID
 export async function deleteUrl(id) {
-  const {data, error} = await supabase.from("urls").delete().eq("id", id);
+  const { data, error } = await supabase
+    .from("urls")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     console.error(error);

@@ -1,4 +1,4 @@
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,20 +7,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Card} from "./ui/card";
-import {useNavigate, useSearchParams} from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
+import { Input } from "@/components/ui/input";
+import { Card } from "./ui/card";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import Error from "./error";
 import * as yup from "yup";
 import useFetch from "@/hooks/use-fetch";
-import {createUrl} from "@/db/apiUrls";
-import {BeatLoader} from "react-spinners";
-import {UrlState} from "@/context";
-import {QRCode} from "react-qrcode-logo";
+import { createUrl } from "@/db/apiUrls";
+import { BeatLoader } from "react-spinners";
+import { UrlState } from "@/context";
+import { QRCode } from "react-qrcode-logo";
 
 export function CreateLink() {
-  const {user} = UrlState();
+  const { user } = UrlState();
 
   const navigate = useNavigate();
   const ref = useRef();
@@ -56,7 +56,7 @@ export function CreateLink() {
     error,
     data,
     fn: fnCreateUrl,
-  } = useFetch(createUrl, {...formValues, user_id: user.id});
+  } = useFetch(createUrl); // ✅ Do not pass form values here
 
   useEffect(() => {
     if (error === null && data) {
@@ -66,24 +66,43 @@ export function CreateLink() {
   }, [error, data]);
 
   const createNewLink = async () => {
-    setErrors([]);
-    try {
-      await schema.validate(formValues, {abortEarly: false});
+  setErrors({});
+  try {
+    const trimmedValues = {
+      title: formValues.title.trim(),
+      longUrl: formValues.longUrl.trim(),
+      customUrl: formValues.customUrl.trim(),
+    };
 
-      const canvas = ref.current.canvasRef.current;
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+    await schema.validate(trimmedValues, { abortEarly: false });
 
-      await fnCreateUrl(blob);
-    } catch (e) {
-      const newErrors = {};
+    const canvas = ref.current?.canvasRef?.current;
+    if (!canvas) {
+      setErrors({ api: "QR code generation failed. Please try again." });
+      return;
+    }
 
-      e?.inner?.forEach((err) => {
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+    if (!blob) {
+      setErrors({ api: "Failed to convert QR code to image blob." });
+      return;
+    }
+
+    await fnCreateUrl({ ...trimmedValues, user_id: user.id, qrBlob: blob });
+  } catch (e) {
+    const newErrors = {};
+
+    if (e?.inner) {
+      e.inner.forEach((err) => {
         newErrors[err.path] = err.message;
       });
-
       setErrors(newErrors);
+    } else {
+      setErrors({ api: e.message });
     }
-  };
+  }
+};
+
 
   return (
     <Dialog
@@ -99,6 +118,7 @@ export function CreateLink() {
         <DialogHeader>
           <DialogTitle className="font-bold text-2xl">Create New</DialogTitle>
         </DialogHeader>
+
         {formValues?.longUrl && (
           <QRCode ref={ref} size={250} value={formValues?.longUrl} />
         )}
@@ -110,6 +130,7 @@ export function CreateLink() {
           onChange={handleChange}
         />
         {errors.title && <Error message={errors.title} />}
+
         <Input
           id="longUrl"
           placeholder="Enter your Loooong URL"
@@ -117,6 +138,7 @@ export function CreateLink() {
           onChange={handleChange}
         />
         {errors.longUrl && <Error message={errors.longUrl} />}
+
         <div className="flex items-center gap-2">
           <Card className="p-2">trimrr.in</Card> /
           <Input
@@ -126,7 +148,10 @@ export function CreateLink() {
             onChange={handleChange}
           />
         </div>
-        {error && <Error message={errors.message} />}
+
+        {error && <Error message={error.message} />}
+        {errors.api && <Error message={errors.api} />}
+
         <DialogFooter className="sm:justify-start">
           <Button
             type="button"

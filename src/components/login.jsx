@@ -44,7 +44,7 @@ const Login = () => {
   useEffect(() => {
     if (error === null && data) {
       fetchUser();
-      navigate(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
+      navigate(`/dashboard${longLink ? `?createNew=${longLink}` : ""}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, data]);
@@ -62,7 +62,7 @@ const Login = () => {
       });
 
       await schema.validate(formData, { abortEarly: false });
-      await fnLogin(formData); // ✅ Pass correct login credentials
+      await fnLogin(formData); // ✅ Pass validated credentials
     } catch (e) {
       const newErrors = {};
       if (e?.inner) {
@@ -104,7 +104,7 @@ const Login = () => {
         {errors.password && <Error message={errors.password} />}
       </CardContent>
       <CardFooter>
-        <Button onClick={handleLogin}>
+        <Button onClick={handleLogin} disabled={loading}>
           {loading ? <BeatLoader size={10} color="#36d7b7" /> : "Login"}
         </Button>
       </CardFooter>

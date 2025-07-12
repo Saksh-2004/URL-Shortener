@@ -6,20 +6,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {logout} from "@/db/apiAuth";
+import { logout } from "@/db/apiAuth";
 import useFetch from "@/hooks/use-fetch";
-import {Avatar, AvatarFallback, AvatarImage} from "@radix-ui/react-avatar";
-import {LinkIcon, LogOut} from "lucide-react";
-import {Link, useNavigate} from "react-router-dom";
-import {BarLoader} from "react-spinners";
-import {Button} from "./ui/button";
-import {UrlState} from "@/context";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { LinkIcon, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { BarLoader } from "react-spinners";
+import { Button } from "./ui/button";
+import { UrlState } from "@/context";
 
 const Header = () => {
-  const {loading, fn: fnLogout} = useFetch(logout);
+  const { loading, fn: fnLogout } = useFetch(logout);
   const navigate = useNavigate();
 
-  const {user, fetchUser} = UrlState();
+  const { user, fetchUser } = UrlState();
 
   return (
     <>
@@ -35,7 +35,9 @@ const Header = () => {
               <DropdownMenuTrigger className="w-10 rounded-full overflow-hidden">
                 <Avatar>
                   <AvatarImage src={user?.user_metadata?.profilepic} />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.user_metadata?.name?.[0] || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -43,18 +45,17 @@ const Header = () => {
                   {user?.user_metadata?.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link to="/dashboard" className="flex">
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="flex items-center">
                     <LinkIcon className="mr-2 h-4 w-4" />
                     My Links
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => {
-                    fnLogout().then(() => {
-                      fetchUser();
-                      navigate("/auth");
-                    });
+                  onClick={async () => {
+                    await fnLogout();
+                    fetchUser();
+                    navigate("/auth");
                   }}
                   className="text-red-400"
                 >

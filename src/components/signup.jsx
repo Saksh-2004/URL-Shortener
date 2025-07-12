@@ -17,11 +17,10 @@ import { BeatLoader } from "react-spinners";
 import useFetch from "@/hooks/use-fetch";
 
 const Signup = () => {
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const longLink = searchParams.get("createNew");
 
   const navigate = useNavigate();
-
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
@@ -30,6 +29,8 @@ const Signup = () => {
     profilepic: null,
   });
 
+  const { loading, error, fn: fnSignup, data } = useFetch(signup);
+
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prevState) => ({
@@ -37,8 +38,6 @@ const Signup = () => {
       [name]: files ? files[0] : value,
     }));
   };
-
-  const { loading, error, fn: fnSignup, data } = useFetch(signup);
 
   useEffect(() => {
     if (error === null && data) {

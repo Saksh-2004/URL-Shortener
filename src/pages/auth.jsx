@@ -1,14 +1,14 @@
 import Login from "@/components/login";
 import Signup from "@/components/signup";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {UrlState} from "@/context";
-import {useEffect} from "react";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UrlState } from "@/context";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Auth() {
   let [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {isAuthenticated, loading} = UrlState();
+  const { isAuthenticated, loading } = UrlState();
   const longLink = searchParams.get("createNew");
 
   useEffect(() => {

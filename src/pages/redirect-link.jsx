@@ -11,20 +11,21 @@ const RedirectLink = () => {
 
   useEffect(() => {
     fn(id); // fetch the long URL based on short/custom URL
-  }, []);
+  }, [id]);
 
   useEffect(() => {
-    if (!loading && data) {
-      const doRedirect = async () => {
-        await storeClicks({
-          id: data.id,
-          originalUrl: data.original_url,
-        });
-      };
+  if (!loading && data) {
+    // Fire-and-forget storeClicks (don't await)
+    storeClicks({
+      id: data.id,
+      originalUrl: data.original_url,
+    }).catch((err) => console.error("Click store failed:", err));
 
-      doRedirect();
-    }
-  }, [loading, data]);
+    // Redirect immediately
+    window.location.href = data.original_url;
+  }
+}, [loading, data]);
+
 
   if (loading) {
     return (
